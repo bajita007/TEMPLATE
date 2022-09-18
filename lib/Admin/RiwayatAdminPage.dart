@@ -1,6 +1,7 @@
 import 'package:comindors/Api/ApiPayAdmin.dart';
 import 'package:comindors/Listing/ListTrxAdmin.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../Listing/AccountItem.dart';
 import '../Model/ModelPayment.dart';
@@ -99,7 +100,9 @@ class _RiwayatAdminState extends State<RiwayatAdmin> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+      backgroundColor: Colors.white.withOpacity(0.95),
       appBar: AppBar(
         title: const Text("Riwayat Transaksi"),
       ),

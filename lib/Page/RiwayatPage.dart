@@ -36,7 +36,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
     print(clickAktif.toString());
     var res = await ApiPayment().riwayatList(
         outlet_id: widget.outlet.toString(), status: clickAktif, page: _page);
-    print("DATA $_page${modelPaymentToJson(res)}");
     setState(() {
       _riwayaList = res;
     });
@@ -60,7 +59,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
           status: clickAktif,
           page: _page,
         );
-        print("DATA $_page ${modelPaymentToJson(res)}");
 
         if (res.isNotEmpty) {
           setState(() {
@@ -78,7 +76,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
       setState(() {
         _isLoadMoreRunning = false;
       });
-      print(_riwayaList.length);
     }
   }
 
@@ -99,6 +96,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white.withOpacity(0.85),
       appBar: AppBar(
         title: const Text("Riwayat Transaksi"),
       ),

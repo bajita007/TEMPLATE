@@ -1,9 +1,13 @@
 import 'package:comindors/Admin/HomeAdmin.dart';
+import 'package:comindors/Api/ApiAdmin.dart';
+import 'package:comindors/Dialog/LoadingUi.dart';
 import 'package:comindors/Page/WelcomePage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Ui/ButtonStyle.dart';
 import '../Ui/StyleForm.dart';
@@ -194,10 +198,20 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
                       child: StyleButton.buttonPrimary(
                           context: context,
                           navigator: () {
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                         HomeAdmin()));
+                            loadingUi(context);
+                            if (_formKey.currentState!.validate()) {
+                              //JIKA TRUE
+                              _formKey.currentState!.save();
+                              String pass =
+                                  _formKey.currentState!.value['password'];
+                              String username =
+                                  _formKey.currentState!.value['username'];
+
+                              setData(pass, username);
+                            }else{
+                              Navigator.of(context).pop();
+
+                            }
                           },
                           title: "Masuk")),
                   const SizedBox(height: 5),
@@ -223,5 +237,31 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
             )
           ]),
     ));
+  }
+
+  Future<void> setData(String pass, String username) async {
+    await Provider.of<ApiAdmin>(context, listen: false)
+        .adminLogin(email: username, pass: pass)
+        .then((isSuccess) {
+      final scaffold = ScaffoldMessenger.of(context);
+      Navigator.of(context).pop();
+
+      if (isSuccess) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomeAdmin()));
+      } else {
+        scaffold.showSnackBar(
+          const SnackBar(
+            content: Text("Data Admin Anda Tidak Ditemukan!!!"),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> checkLogin() async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.clear();
   }
 }

@@ -1,9 +1,12 @@
+import 'package:comindors/Api/ApiPayAdmin.dart';
 import 'package:comindors/Model/ModelOutlet.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../Api/ApiRekening.dart';
 import '../Model/ModelPayment.dart';
+import '../Page/DetailsFoto.dart';
 import '../Ui/ButtonStyle.dart';
 import '../Ui/StyleText.dart';
 import '../Ui/ThreeRow.dart';
@@ -30,7 +33,7 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
     List dataRek = await ApiRekening().dataRekening();
     if (dataRek.isNotEmpty) {
       dataRek.map((value) {
-        if (value.id.toString() == "1") {
+        if (value.id.toString()  == widget.model.idCmdRekening) {
           namaRek = value.namaRek!.toString();
           typeRek = value.tipeRek!.toString();
           nomorRek = value.noRek!.toString();
@@ -51,7 +54,7 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Warna.grey,
+      backgroundColor: Colors.white.withOpacity(0.95),
       appBar: AppBar(
         elevation: 0,
         title: const Text(
@@ -101,7 +104,22 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
                                         style: StyleText.textSubHeaderHitam20,
                                       ),
                                       Card(
-                                        color: Warna.BiruPrimary,
+                                        color: (widget.model.payStatus
+                                                    .toString() ==
+                                                "Selesai")
+                                            ? Colors.green
+                                            : (widget.model.payStatus
+                                                        .toString() ==
+                                                    "Diterimah")
+                                                ? Colors.yellow
+                                                : (widget.model.payStatus
+                                                                .toString() ==
+                                                            "Ditolak" ||
+                                                        widget.model.payStatus
+                                                                .toString() ==
+                                                            "Batal")
+                                                    ? Colors.red
+                                                    : Colors.orange,
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 5.0, horizontal: 10.0),
@@ -204,25 +222,66 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
                           child: Column(
                             children: [
                               Text(
-                                "Detail Pengirim",
+                                " Outlet & Pengirim ",
                                 style: StyleText.textBodyHitam16
                                     .copyWith(color: Warna.BiruPrimary),
                               ),
                               const Divider(),
                               ThreeRow(
-                                title: "Pengirim",
-                                value: namaRek,
+                                title: "Outlet",
+                                value:
+                                    widget.model.outlet?.outletNama.toString(),
                                 style2: StyleText.textSubBodyHitam14,
                               ),
                               ThreeRow(
+                                title: "ID Outlet",
+                                value: widget.model.outlet?.outletId.toString(),
+                                style2: StyleText.textSubBodyHitam14,
+                              ),
+                              ThreeRow(
+                                title: "Lokasi",
+                                value:
+                                    "${widget.model.outlet?.kabupaten} \n${widget.model.outlet?.kecamatan}",
+                                style2: StyleText.textSubBodyHitam14,
+                              ),
+                              const Divider(),
+                              if(widget.model.detailsPay != null)
+                                ThreeRow(
+                                  title: "Pengirim",
+                                  value: widget.model.detailsPay!.payPengirim
+                                      .toString()
+                                      .toUpperCase(),
+                                  style2: StyleText.textSubBodyHitam14,
+                                ),
+                              ThreeRow(
                                 title: "Rekening",
-                                value: typeRek,
+                                value: widget.model.detailsPay!.payTipe
+                                    .toString()
+                                    .toUpperCase(),
                                 style2: StyleText.textSubBodyHitam14,
                               ),
                               ThreeRow(
                                 title: "No. Rek.",
-                                value: nomorRek,
+                                value: widget.model.detailsPay!.payRek
+                                    .toString()
+                                    .toUpperCase(),
                                 style2: StyleText.textSubBodyHitam14,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (context) => DetailsFoto(
+                                              payImg: widget
+                                                  .model.detailsPay!.payImg
+                                                  .toString())));
+                                },
+                                child: ThreeRow(
+                                  title: "Foto",
+                                  value: "Lihat Foto",
+                                  style2: StyleText.textSubBodyHitam14
+                                      .copyWith(color: Colors.blue),
+                                ),
                               ),
                             ],
                           ),
@@ -231,13 +290,48 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
                       const SizedBox(
                         height: 10.0,
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: StyleButton.buttonPrimary(
-                            context: context,
-                            navigator: () {},
-                            title: "Upload Bukti Transaksi"),
-                      )
+                      (widget.model.payStatus == "Menunggu")
+                          ? Row(
+                              children: [
+                                Expanded(
+                                  child: StyleButton.buttonPrimary(
+                                      context: context,
+                                      navigator: () {
+                                        _statusPay(context, 'Diterimah', widget.model);
+                                      },
+                                      title: "Diterimah",
+                                      colors: Colors.yellowAccent),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: StyleButton.buttonPrimary(
+                                      context: context,
+                                      navigator: () {
+                                        _statusPay(context, 'Ditolak', widget.model);
+                                      },
+                                      title: "Tolak",
+                                      colors: Colors.red),
+                                ),
+                              ],
+                            )
+                          : Visibility(
+                              visible: (widget.model.payStatus == "Selesai" ||
+                                      widget.model.payStatus == "Ditolak")
+                                  ? false
+                                  : true,
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: StyleButton.buttonPrimary(
+                                    context: context,
+                                    navigator: () {
+                                      _statusPay(context, 'Selesai', widget.model);
+                                    },
+                                    title: "Selesai",
+                                    colors: Colors.green),
+                              ),
+                            ),
                     ]);
                   }
                 })
@@ -246,4 +340,32 @@ class _DetailsTrxAdminState extends State<DetailsTrxAdmin> {
       ),
     );
   }
+}
+
+void _statusPay(BuildContext context, String s, ModelPayment model) {
+  model.payStatus =s;
+  Provider.of<ApiPayAdmin>(context, listen: false)
+      .updateAdminPay(modelPay: model)
+      .then((data) {
+    final scaffold = ScaffoldMessenger.of(context);
+    Navigator.of(context).pop();
+    if (data) {
+      scaffold.showSnackBar(
+        const SnackBar(
+          content: Text("Berhasil Perbaruhi Transaksi..."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    } else {
+      scaffold.showSnackBar(
+        const SnackBar(
+          content: Text("Gagal tambah Bank..."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  });
 }

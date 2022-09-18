@@ -4,9 +4,11 @@
 
 import 'dart:convert';
 
-List<ModelRekening> modelRekeningFromJson(List str) => List<ModelRekening>.from(str.map((x) => ModelRekening.fromJson(x)));
+List<ModelRekening> modelRekeningFromJson(List str) =>
+    List<ModelRekening>.from(str.map((x) => ModelRekening.fromJson(x)));
 
-String modelRekeningToJson(List<ModelRekening> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String modelRekeningToJson(List<ModelRekening> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class ModelRekening {
   ModelRekening({
@@ -14,24 +16,28 @@ class ModelRekening {
     this.tipeRek,
     this.noRek,
     this.namaRek,
+    this.statusRek,
   });
 
   int? id;
   String? tipeRek;
   String? noRek;
   String? namaRek;
+  String? statusRek;
 
   factory ModelRekening.fromJson(Map<String, dynamic> json) => ModelRekening(
-    id: json["id"]??"",
-    tipeRek: json["tipe_rek"]??"",
-    noRek: json["no_rek"]??"",
-    namaRek: json["nama_rek"]??"",
-  );
+        id: json["id"] ?? "",
+        tipeRek: json["tipe_rek"] ?? "",
+        noRek: json["no_rek"] ?? "",
+        namaRek: json["nama_rek"] ?? "",
+        statusRek: json["status_rek"] ?? "",
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "tipe_rek": tipeRek,
-    "no_rek": noRek,
-    "nama_rek": namaRek,
-  };
+        "id": id??"",
+        "tipe_rek": tipeRek,
+        "no_rek": noRek,
+        "nama_rek": namaRek,
+        "status_rek": statusRek,
+      };
 }

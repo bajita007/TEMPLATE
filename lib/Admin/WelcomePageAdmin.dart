@@ -1,5 +1,9 @@
+import 'package:comindors/Api/ApiAdmin.dart';
+import 'package:comindors/Dialog/DialogUi.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Login/LoginScreen.dart';
 import '../Ui/StyleText.dart';
 import '../Ui/Warna.dart';
 
@@ -20,7 +24,15 @@ class _WelcomeAdminState extends State<WelcomeAdmin> {
         title: logo(25),
         actions: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              dialogUi(context,
+                  oke: "OK",
+                  title: "Keluar",
+                  desk: 'Apakah anda ingin keluar dari aplikasi COMINDO APPS.?',
+                  navigator: () {
+                    ApiAdmin().logOutAdmin(context);
+                  });
+            },
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Icon(
@@ -34,4 +46,6 @@ class _WelcomeAdminState extends State<WelcomeAdmin> {
       body: Text("OKE"),
     );
   }
+
+
 }

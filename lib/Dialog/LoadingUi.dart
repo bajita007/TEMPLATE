@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void fetchData(BuildContext context) async {
+void loadingUi(BuildContext context) async {
   // show the loading dialog
   showDialog(
     // The user CANNOT close this dialog  by pressing outsite it

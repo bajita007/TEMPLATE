@@ -24,26 +24,71 @@ class ApiRekening extends ChangeNotifier {
     return [..._listRekening];
   }
 
-
-
-  Future<List<ModelRekening>> dataRekening() async {
+  Future<List<ModelRekening>> dataRekening({String status = ""}) async {
     List<ModelRekening>? data = [];
-    Uri uri = Uri.parse(DataUrl.rekeningList);
+    Uri uri = Uri.parse("${DataUrl.rekeningList}?status=$status");
     final response = await http.get(uri);
     final json = jsonDecode(response.body);
     // print(json);
     if (response.statusCode == 200) {
-      // data = json['success'];
       if (json['success']) {
-        // List a = json["data"];
         data = modelRekeningFromJson(json["data"]);
+        if (status.contains('admin')) {
+          _listRekening = data;
 
+          notifyListeners();
+        }
       } else {
         data = [];
       }
     } else {
       data = [];
     }
+    return data;
+  }
+
+  Future<bool> deleteRek({required ModelRekening modelRekening}) async {
+    bool data = false;
+    Uri uri = Uri.parse(
+        "${DataUrl.rekeningDel}?delete_id=${modelRekening.id.toString()}");
+    final response = await http.delete(uri);
+    final json = jsonDecode(response.body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      if (json['success']) {
+        _listRekening.remove(modelRekening);
+        notifyListeners();
+        data = true;
+      } else {
+        data = false;
+      }
+    } else {
+      data = false;
+    }
+    return data;
+  }
+
+  Future<ModelRekening> tambahRek({ModelRekening? modelRekening}) async {
+    ModelRekening data = ModelRekening();
+    print(modelRekening?.toJson());
+
+    final response = await http.post(
+      Uri.parse(DataUrl.rekeningAdd),
+      body: modelRekening?.toJson(),
+    );
+
+    print(response.body);
+    if (response.statusCode == 201) {
+      final json = jsonDecode(response.body);
+
+      if (json['success']) {
+        data = ModelRekening.fromJson(json['data']);
+        _listRekening.add(data);
+
+        notifyListeners();
+      }
+    }
+
     return data;
   }
 }

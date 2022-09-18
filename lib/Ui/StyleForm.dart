@@ -17,7 +17,6 @@ class StyleForm {
         prefixStyle: const TextStyle(
           color: Warna.BiruPrimary,
         ),
-        // focusColor: Warna.BiruPrimary,
         focusedBorder: borderBiruForm,
         disabledBorder: borderBiruForm,
         enabledBorder: borderPutihForm,
@@ -36,16 +35,6 @@ class StyleForm {
           color: Colors.red,
         ));
   }
-
-  // labelText: "No.Ktp / Email",
-  // filled: true,
-  // contentPadding: EdgeInsets.all(5),
-  //
-  // border: InputBorder.none,
-  // focusedBorder: InputBorder.none,
-  // enabledBorder: InputBorder.none,
-  // errorBorder: InputBorder.none,
-  // disabledBorder: InputBorder.none,
 
   static const borderBiruForm = OutlineInputBorder(
       borderSide: BorderSide(color: Warna.BiruPrimary),

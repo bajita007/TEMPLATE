@@ -1,4 +1,7 @@
+import 'package:comindors/Api/ApiAdmin.dart';
 import 'package:comindors/Api/ApiPay.dart';
+import 'package:comindors/Api/ApiPayAdmin.dart';
+import 'package:comindors/Api/ApiPayDetails.dart';
 import 'package:comindors/Api/ApiRekening.dart';
 import 'package:comindors/Login/LoginScreen.dart';
 import 'package:comindors/Page/SplashPage.dart';
@@ -27,17 +30,17 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     SystemChrome.setSystemUIOverlayStyle(
-       SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.white.withOpacity(0.20), //top bar color
       ),
     );
 
     super.initState();
   }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ApiOutlet>(
@@ -49,7 +52,15 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<ApiPayment>(
           create: (_) => ApiPayment(),
         ),
-
+        ChangeNotifierProvider<ApiPayAdmin>(
+          create: (_) => ApiPayAdmin(),
+        ),
+        ChangeNotifierProvider<ApiAdmin>(
+          create: (_) => ApiAdmin(),
+        ),
+        ChangeNotifierProvider<ApiPayDetails>(
+          create: (_) => ApiPayDetails(),
+        ),
       ],
       child: MaterialApp(
         localizationsDelegates: const [
@@ -57,21 +68,17 @@ class _MyAppState extends State<MyApp> {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
         ],
-
         supportedLocales: const [
           Locale('id', ''), // English, no country code
           Locale('en', ''), // Spanish, no country code
         ],
         title: 'Flutter Demo',
-
         theme: ThemeData(
           appBarTheme: const AppBarTheme(
             color: Warna.BiruPrimary,
           ),
-          scaffoldBackgroundColor:  Warna.grey.withOpacity(0.95),
-          backgroundColor: Warna.grey.withOpacity(0.95),
           fontFamily: 'QuickSand',
-      accentColor: Warna.BiruPrimary,
+          accentColor: Warna.BiruPrimary,
           primaryColor: Warna.BiruPrimary,
           colorScheme: ColorScheme.fromSeed(
             seedColor: Warna.BiruPrimary,
@@ -84,6 +91,5 @@ class _MyAppState extends State<MyApp> {
         home: SplashPage(),
       ),
     );
-
   }
 }

@@ -1,3 +1,5 @@
+import 'package:comindors/Admin/BankAdminPage.dart';
+import 'package:comindors/Admin/ProfileAdminPage.dart';
 import 'package:comindors/Admin/RiwayatAdminPage.dart';
 import 'package:flutter/material.dart';
 
@@ -19,15 +21,8 @@ class _HomeAdminState extends State<HomeAdmin> {
   static const List<Widget> _widgetOptions = <Widget>[
     WelcomeAdmin(),
     RiwayatAdmin(),
-
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 3: Settings',
-      style: optionStyle,
-    ),
+    BankAdminPage(),
+    ProfileAdminPage()
   ];
 
   void _onItemTapped(int index) {
@@ -39,7 +34,7 @@ class _HomeAdminState extends State<HomeAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      backgroundColor: Colors.white.withOpacity(0.85),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -58,7 +53,7 @@ class _HomeAdminState extends State<HomeAdmin> {
               label: 'Bank',
               backgroundColor: Warna.BiruPrimary),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.account_circle_rounded),
               label: 'Profile',
               backgroundColor: Warna.BiruPrimary),
         ],

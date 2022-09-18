@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:comindors/Model/ModelOutlet.dart';
 import 'package:intl/intl.dart';
 
+import 'ModelDetailsPayment.dart';
+
 List<ModelPayment> modelPaymentFromJson(List str, String? status) {
   if (status == "Admin") {
     return List<ModelPayment>.from(
@@ -31,6 +33,7 @@ class ModelPayment {
     this.createdAt,
     this.updatedAt,
     this.outlet,
+    this.detailsPay,
   });
 
   String? id;
@@ -43,6 +46,7 @@ class ModelPayment {
   String? createdAt;
   String? updatedAt;
   ModelOutlet? outlet;
+  ModelDetailsPay? detailsPay;
 
   factory ModelPayment.fromJson(Map<String, dynamic> json) {
     DateTime date = DateTime.parse(json["created_at"].toString());
@@ -73,6 +77,9 @@ class ModelPayment {
       idCmdRekening: json["id_cmd_rekening"].toString(),
       createdAt: dateFormat2,
       updatedAt: dateUpdate,
+      detailsPay: json["details"] == null
+          ? null
+          : ModelDetailsPay.fromJson(json["details"]),
     );
   }
 
@@ -118,6 +125,9 @@ class ModelPayment {
       createdAt: dateFormat2,
       updatedAt: dateUpdate,
       outlet: ModelOutlet.fromJson(json["outlet"]),
+      detailsPay: json["details"] == null
+          ? null
+          : ModelDetailsPay.fromJson(json["details"]),
     );
   }
 }

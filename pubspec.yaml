@@ -16,6 +16,8 @@ dependencies:
   form_builder_validators: ^8.3.0
   provider: ^6.0.3
   http: ^0.13.5
+  image_picker: ^0.8.5+3
+
 
   #  localization: ^2.1.0
   intl: ^0.17.0

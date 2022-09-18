@@ -1,9 +1,17 @@
+import 'dart:io';
+
+import 'package:comindors/Api/ApiPay.dart';
+import 'package:comindors/Model/ModelDetailsPayment.dart';
+import 'package:comindors/Page/DetailsFoto.dart';
 import 'package:comindors/Ui/ButtonStyle.dart';
 import 'package:comindors/Ui/ThreeRow.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../Api/ApiRekening.dart';
 
+import '../Dialog/DialogPayDetails.dart';
 import '../Model/ModelPayment.dart';
 import '../Ui/StyleText.dart';
 import '../Ui/Warna.dart';
@@ -20,6 +28,8 @@ class _DetailsPaymentState extends State<DetailsPayment> {
   String namaRek = "";
   String typeRek = "";
   String nomorRek = "";
+  String imageData = "";
+
 
   final formatter =
       NumberFormat.simpleCurrency(locale: "id_ID", decimalDigits: 0);
@@ -28,7 +38,7 @@ class _DetailsPaymentState extends State<DetailsPayment> {
     List dataRek = await ApiRekening().dataRekening();
     if (dataRek.isNotEmpty) {
       dataRek.map((value) {
-        if (value.id.toString() == "1") {
+        if (value.id.toString() == widget.model.idCmdRekening) {
           namaRek = value.namaRek!.toString();
           typeRek = value.tipeRek!.toString();
           nomorRek = value.noRek!.toString();
@@ -40,12 +50,14 @@ class _DetailsPaymentState extends State<DetailsPayment> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
-      backgroundColor: Warna.grey,
+      backgroundColor: Colors.white.withOpacity(0.85),
       appBar: AppBar(
-        elevation: 0,
         title: const Text(
           "DETAIL TRANSAKSI",
           textAlign: TextAlign.center,
@@ -58,7 +70,6 @@ class _DetailsPaymentState extends State<DetailsPayment> {
           children: [
             FutureBuilder(
                 future: getDataRekening(),
-                initialData: [],
                 builder: (context, snap) {
                   if (!snap.hasData) {
                     return const Center(
@@ -93,7 +104,22 @@ class _DetailsPaymentState extends State<DetailsPayment> {
                                         style: StyleText.textSubHeaderHitam20,
                                       ),
                                       Card(
-                                        color: Warna.BiruPrimary,
+                                        color: (widget.model.payStatus
+                                                    .toString() ==
+                                                "Selesai")
+                                            ? Colors.green
+                                            : (widget.model.payStatus
+                                                        .toString() ==
+                                                    "Diterimah")
+                                                ? Colors.yellow
+                                                : (widget.model.payStatus
+                                                                .toString() ==
+                                                            "Ditolak" ||
+                                                        widget.model.payStatus
+                                                                .toString() ==
+                                                            "Batal")
+                                                    ? Colors.red
+                                                    : Colors.orange,
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 5.0, horizontal: 10.0),
@@ -188,48 +214,84 @@ class _DetailsPaymentState extends State<DetailsPayment> {
                       const SizedBox(
                         height: 10.0,
                       ),
-                      // Card(
-                      //     child: SizedBox(
-                      //   width: double.infinity,
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(10.0),
-                      //     child: Column(
-                      //       children: [
-                      //         Text(
-                      //           "Detail Pengirim",
-                      //           style: StyleText.textBodyHitam16
-                      //               .copyWith(color: Warna.BiruPrimary),
-                      //         ),
-                      //         const Divider(),
-                      //         ThreeRow(
-                      //           title: "Pengirim",
-                      //           value: namaRek,
-                      //           style2: StyleText.textSubBodyHitam14,
-                      //         ),
-                      //         ThreeRow(
-                      //           title: "Rekening",
-                      //           value: typeRek,
-                      //           style2: StyleText.textSubBodyHitam14,
-                      //         ),
-                      //         ThreeRow(
-                      //           title: "No. Rek.",
-                      //           value: nomorRek,
-                      //           style2: StyleText.textSubBodyHitam14,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // )),
-                      // SizedBox(
-                      //   height: 10.0,
-                      // ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: StyleButton.buttonPrimary(
-                            context: context,
-                            navigator: () {},
-                            title: "Upload Bukti Transaksi"),
-                      )
+                      if (widget.model.detailsPay != null)
+                        Card(
+                            child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  " PENGIRIM ",
+                                  style: StyleText.textBodyHitam16
+                                      .copyWith(color: Warna.BiruPrimary),
+                                ),
+                                const Divider(),
+                                ThreeRow(
+                                  title: "Pengirim",
+                                  value: widget.model.detailsPay!.payPengirim
+                                      .toString()
+                                      .toUpperCase(),
+                                  style2: StyleText.textSubBodyHitam14,
+                                ),
+                                ThreeRow(
+                                  title: "Rekening",
+                                  value: widget.model.detailsPay!.payTipe
+                                      .toString()
+                                      .toUpperCase(),
+                                  style2: StyleText.textSubBodyHitam14,
+                                ),
+                                ThreeRow(
+                                  title: "No. Rek.",
+                                  value: widget.model.detailsPay!.payRek
+                                      .toString()
+                                      .toUpperCase(),
+                                  style2: StyleText.textSubBodyHitam14,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) => DetailsFoto(
+                                                payImg: widget
+                                                    .model.detailsPay!.payImg
+                                                    .toString())));
+                                  },
+                                  child: ThreeRow(
+                                    title: "Foto",
+                                    value: "Lihat Foto",
+                                    style2: StyleText.textSubBodyHitam14
+                                        .copyWith(color: Colors.blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )),
+                      if (widget.model.detailsPay == null)
+                        SizedBox(
+                          width: double.infinity,
+                          child: StyleButton.buttonPrimary(
+                              context: context,
+                              navigator: () {
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (_) {
+                                      return TambahPayDetails(
+                                          models: widget.model,
+                                          update:(ModelDetailsPay model){
+                                            setState(() {
+                                              widget.model.detailsPay = model;
+                                            });
+                                          }
+
+                                      );
+                                    });
+                              },
+                              title: "Upload Bukti Transaksi"),
+                        )
                     ]);
                   }
                 })

@@ -1,9 +1,12 @@
 import 'dart:ffi';
 
+import 'package:comindors/Api/ApiOutlet.dart';
 import 'package:comindors/Api/ApiPay.dart';
 import 'package:comindors/Login/LoginScreen.dart';
+import 'package:comindors/Model/ModelOutlet.dart';
 import 'package:comindors/Page/RiwayatPage.dart';
 import 'package:comindors/Page/TopupPage.dart';
+import 'package:comindors/Ui/ButtonStyle.dart';
 import 'package:comindors/Ui/Warna.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +25,9 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage> {
   String? outlet_id;
-  List arraySts = ['Diterimah', 'Menunggu'];
+  ModelOutlet modelOutlet = ModelOutlet();
+
+  List arraySts = ["Menunggu", "Diterimah", "Ditolak", "Selesai"];
 
   @override
   void initState() {
@@ -35,26 +40,38 @@ class _WelcomePageState extends State<WelcomePage> {
     SharedPreferences getData = await SharedPreferences.getInstance();
     getData.clear();
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-            builder: (context) =>const LoginScreen(
-
-                )),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
         (Route<dynamic> route) => false);
+  }
+
+  _checkData(String outlet_id) async {
+    var data = await Provider.of<ApiOutlet>(context, listen: false)
+        .outletLogin(id_outlet: outlet_id, setModel: true);
+
+    if (data) {
+      setState(() {
+        modelOutlet =
+            Provider.of<ApiOutlet>(context, listen: false).modelOutlet;
+      });
+    }
+    return data;
   }
 
   startLaunching() async {
     SharedPreferences getData = await SharedPreferences.getInstance();
     String? dataOut = getData.getString(StringData.id_outlet);
-    print("DATA OUTLET " + dataOut!);
+
     setState(() {
       outlet_id = dataOut;
     });
+    _checkData(dataOut!);
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      backgroundColor: Warna.grey,
+      backgroundColor: Colors.white.withOpacity(0.85),
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black87),
@@ -63,7 +80,7 @@ class _WelcomePageState extends State<WelcomePage> {
         actions: [
           InkWell(
             onTap: () {
-             return _logOut(context);
+              _logOut(context);
             },
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -95,57 +112,32 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text("Hello",
+                  const Text("Hallo",
                       textAlign: TextAlign.start,
                       style: StyleText.textSubHeaderPutih20),
-                  const Text("Mr. Azka",
+                  Text(modelOutlet.outletNama.toString(),
                       textAlign: TextAlign.start,
                       style: StyleText.textHeaderPutih24),
                   const SizedBox(
-                    height: 11.0,
+                    height: 10.0,
                   ),
-                  RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(text: "89", style: StyleText.textBiasaPutih12),
-                        TextSpan(
-                            text: " Apakah Anda sudah ngocok hari ini .?",
-                            style: StyleText.textBiasaPutih12)
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 12.0,
-                  ),
+                  const Text("Lakukan transaksi dengan menekan tombol dibawah",
+                      style: StyleText.textBiasaPutih12),
                   SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => TopupPage(
-                                  idOutlet: outlet_id,
-                                )));
-                      },
-                      style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          primary: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15.0, vertical: 11.0),
-                          textStyle: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold)),
-                      child: const Text(
-                        'Deposit',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Warna.Bg,
-                        ),
-                      ),
-                    ),
-                  ),
+                      width: double.infinity,
+                      child: StyleButton.buttonPrimary(
+                          context: context,
+                          navigator: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => TopupPage(
+                                      idOutlet: outlet_id,
+                                    )));
+                          },
+                          title: "Deposit / Topup",
+                          colors: Colors.red)),
                 ],
               ),
             ),
@@ -172,7 +164,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Transaksi Terakhir",
+                            const Text("10 Transaksi Terakhir",
                                 textAlign: TextAlign.start,
                                 style: StyleText.textBodyHitam16),
                             InkWell(
@@ -194,7 +186,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         child: FutureBuilder(
                             future:
                                 Provider.of<ApiPayment>(context, listen: false)
-                                    .allPayment(
+                                    .riwayatList(
                                         outlet_id: outlet_id.toString(),
                                         status: arraySts),
                             builder: (context, snapshot) {
@@ -213,7 +205,10 @@ class _WelcomePageState extends State<WelcomePage> {
                                       shrinkWrap: true,
                                       scrollDirection: Axis.vertical,
                                       itemCount:
-                                          listTransaksi.listPayment.length,
+                                          listTransaksi.listPayment.length >= 10
+                                              ? 10
+                                              : listTransaksi
+                                                  .listPayment.length,
                                       itemBuilder: (context, index) {
                                         return accountItems(
                                             context: context,

@@ -8,6 +8,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Dialog/LoadingUi.dart';
 import '../Ui/ButtonStyle.dart';
 import '../Ui/StyleForm.dart';
 import '../Ui/StyleText.dart';
@@ -173,14 +174,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: StyleButton.buttonPrimary(
                           context: context,
                           navigator: () {
+                            loadingUi(context);
                             if (_formKey.currentState!.validate()) {
                               //JIKA TRUE
                               _formKey.currentState!.save();
                               String id_outlet =
                                   _formKey.currentState!.value['outlet_id'];
 
-                              print("ID OUTLET : " + id_outlet);
                               setData(id_outlet);
+                            }else{
+                              Navigator.of(context).pop();
                             }
                           },
                           title: "Masuk")),
@@ -216,6 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
         .outletLogin(id_outlet: id_outlet)
         .then((isSuccess) {
       final scaffold = ScaffoldMessenger.of(context);
+      Navigator.of(context).pop();
 
       if (isSuccess) {
         Navigator.of(context)

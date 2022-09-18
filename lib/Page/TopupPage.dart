@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:comindors/Api/ApiPay.dart';
@@ -15,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/ModekRek.dart';
 import '../Ui/ButtonStyle.dart';
 import '../Ui/FormatRupiah.dart';
-import '../Ui/LoadingUi.dart';
+import '../Dialog/LoadingUi.dart';
 import '../Ui/StringData.dart';
 import '../Ui/StyleForm.dart';
 import '../Ui/StyleText.dart';
@@ -32,7 +33,6 @@ class TopupPage extends StatefulWidget {
 
 class _TopupPageState extends State<TopupPage> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
   bool autoValidate = true;
   bool readOnly = false;
@@ -87,8 +87,13 @@ class _TopupPageState extends State<TopupPage> {
 
   @override
   Widget build(BuildContext context) {
+    int limitHarian = Provider.of<ApiPayment>(context).limitHarian;
+    int limitBelanja = Provider.of<ApiPayment>(context).limitBelanja;
+
+    print(limitHarian.toString()+" OKE");
+    print(limitBelanja.toString() +" OKE");
     return Scaffold(
-      backgroundColor: Warna.grey,
+      backgroundColor: Colors.white.withOpacity(0.85),
       appBar: AppBar(
         elevation: 0,
         title: const Text(
@@ -102,7 +107,7 @@ class _TopupPageState extends State<TopupPage> {
           Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(25.0),
-            decoration:  BoxDecoration(
+            decoration: BoxDecoration(
               color: Warna.BiruPrimary.withOpacity(0.90),
               borderRadius: const BorderRadius.only(
                   bottomRight: Radius.circular(10.0),
@@ -111,38 +116,24 @@ class _TopupPageState extends State<TopupPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: const <Widget>[
+              children: <Widget>[
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(
+                      const TextSpan(
                         text: 'Limit harian Anda tersisa : ',
                         style: TextStyle(color: Colors.white),
                       ),
                       TextSpan(
-                        text: 'Rp. 3.000.000',
-                        style: TextStyle(
+                        text: formatter.format(3000000 - limitBelanja),
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ],
                   ),
                 ),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Maks. saldo untuk di top up sebesar : ',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      TextSpan(
-                        text: 'Rp. 3.000.000',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-                Text.rich(
+
+                const Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
@@ -166,19 +157,105 @@ class _TopupPageState extends State<TopupPage> {
               ],
             ),
           ),
-          Expanded(
-              child: FutureBuilder(
-                  future: getDataRekening(),
-                  initialData: [],
-                  builder: (context, snap) {
-                    if (!snap.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Warna.BiruPrimary)),
-                      );
-                    } else {
-                      return SingleChildScrollView(
+          FutureBuilder(
+              future: getDataRekening(),
+              initialData: [],
+              builder: (context, snap) {
+                if (!snap.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Warna.BiruPrimary)),
+                  );
+                } else {
+                  if (limitBelanja >= 3000000000) {
+                    return Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 30, horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0, vertical: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Limit Harian Anda Sudah Mencapai Batas Sebesar :",
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.normal),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 10.0,
+                                ),
+                                Text(
+                                  formatter
+                                      .format(limitBelanja)
+                                      .replaceAll('Rp', 'Rp. '),
+                                  style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.normal),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            )));
+                  } else if (limitHarian >= 5) {
+                    return Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 30, horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0, vertical: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Anda memiliki transaksi yang masih dalam status MENUNGGU sebanyak:",
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.normal),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 10.0,
+                                ),
+                                Text(
+                                  "$limitHarian  Transaksi",
+                                  style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.normal),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 10.0,
+                                ),
+                                const Text(
+                                  "Silahkan hubungi admin terkait hal ini.",
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.normal),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            )));
+                  } else {
+                    return Expanded(
+                      child: SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 15.0, vertical: 10.0),
                         child: Card(
@@ -236,7 +313,8 @@ class _TopupPageState extends State<TopupPage> {
                                                 .toString()
                                                 .replaceAll("Rp", "");
                                             setState(() {
-                                              deposit = int.parse(finaldata);
+                                              deposit =
+                                                  int.parse(finaldata ?? '0');
                                               if (int.parse(finaldata) >=
                                                   2000) {
                                                 buttonNext = true;
@@ -355,7 +433,7 @@ class _TopupPageState extends State<TopupPage> {
                                                         _adminRandom.toString(),
                                                     idCmdRekening: dataNoRek,
                                                   );
-                                                  fetchData(context);
+                                                  loadingUi(context);
                                                   _saveData(modelPay);
                                                 },
                                                 title: "Selanjutnya"),
@@ -367,9 +445,11 @@ class _TopupPageState extends State<TopupPage> {
                             ),
                           ),
                         ),
-                      );
-                    }
-                  })),
+                      ),
+                    );
+                  }
+                }
+              }),
         ],
       ),
     );

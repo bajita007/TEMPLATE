@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:comindors/Admin/HomeAdmin.dart';
 import 'package:comindors/Login/LoginScreen.dart';
 import 'package:comindors/Page/WelcomePage.dart';
 import 'package:comindors/Ui/StringData.dart';
@@ -36,6 +37,9 @@ class _SplashPageState extends State<SplashPage> {
       if (seen == null || status == null) {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => LoginScreen()));
+      } else if (status == 'Admin') {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomeAdmin()));
       } else {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => WelcomePage()));
@@ -46,59 +50,57 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(children: <Widget>[
-          Align(
-            alignment: Alignment.topLeft,
-            child: CustomPaint(
-              painter: CircleOne(Colors.blue.withAlpha(80)),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: CustomPaint(
-              painter: CircleOne(Colors.blue.withAlpha(80)),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: CustomPaint(
-              painter: CircleTwo(Colors.red.withAlpha(80)),
-            ),
-          ),
-          Align(
-            alignment: const Alignment(1.0, -0.5),
-            child: CustomPaint(
-              painter: CircleTwo(Colors.red.withAlpha(80)),
-            ),
-          ),
-          Align(
-            alignment: const Alignment(-1.0, -0.03),
-            child: CustomPaint(
-              painter: CircleTwo(Colors.blue.withAlpha(80)),
-            ),
-          ),
-          Align(
-            alignment: const Alignment(1.0, 0.3),
-            child: CustomPaint(
-              painter: CircleTwo(Colors.red.withAlpha(80)),
-            ),
-          ),
+      Align(
+        alignment: Alignment.topLeft,
+        child: CustomPaint(
+          painter: CircleOne(Colors.blue.withAlpha(80)),
+        ),
+      ),
+      Align(
+        alignment: Alignment.bottomLeft,
+        child: CustomPaint(
+          painter: CircleOne(Colors.blue.withAlpha(80)),
+        ),
+      ),
+      Align(
+        alignment: Alignment.bottomRight,
+        child: CustomPaint(
+          painter: CircleTwo(Colors.red.withAlpha(80)),
+        ),
+      ),
+      Align(
+        alignment: const Alignment(1.0, -0.5),
+        child: CustomPaint(
+          painter: CircleTwo(Colors.red.withAlpha(80)),
+        ),
+      ),
+      Align(
+        alignment: const Alignment(-1.0, -0.03),
+        child: CustomPaint(
+          painter: CircleTwo(Colors.blue.withAlpha(80)),
+        ),
+      ),
+      Align(
+        alignment: const Alignment(1.0, 0.3),
+        child: CustomPaint(
+          painter: CircleTwo(Colors.red.withAlpha(80)),
+        ),
+      ),
 
-
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:  [
-
-                  logo(40),
-                ],
-              ),
-            ),
-          )
-          //
-        ]));
+      Center(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              logo(40),
+            ],
+          ),
+        ),
+      )
+      //
+    ]));
   }
 }
